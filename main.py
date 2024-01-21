@@ -1,26 +1,30 @@
+# необходимые импорты
 import os
 import sys
 
 import pygame
 
+# константы, которые используются в проекте
 WINDOW_SIZE = WINDOW_WIDTH, WINDOW_HEIGHT = 600, 600
 FPS = 15
 FPS_S = 50
-MAPS_DIR = "maps"
 TILE_SIZE = 40
 ENEMY_EVENT_TYPE = 30
 
+# инициализация pygame
 pygame.init()
 screen = pygame.display.set_mode(WINDOW_SIZE)
 pygame.display.set_caption('Том и Джерри')
 clock = pygame.time.Clock()
 
 
+# функция, которая отвечает за закрытие программы
 def terminate():
     pygame.quit()
     sys.exit()
 
 
+# функция финального экрана
 def finish_screen():
     all_sprites = pygame.sprite.Group()
     sprite = Picture(all_sprites)
@@ -38,6 +42,7 @@ def finish_screen():
             return
 
 
+# функция стартового экрана
 def start_screen():
     intro_text = ["ПРАВИЛА ИГРЫ:", "",
                   "Задача мышонка Джерри",
@@ -74,6 +79,7 @@ def start_screen():
         clock.tick(FPS_S)
 
 
+# функция для загрузки изображения
 def load_image(name, colorkey=None):
     fullname = os.path.join('images', name)
     if not os.path.isfile(fullname):
@@ -91,6 +97,8 @@ def load_image(name, colorkey=None):
 
 
 class Picture(pygame.sprite.Sprite):
+    '''Класс, создающий спрайт
+    изображения.'''
     image = pygame.transform.scale(load_image("picture.jpg"),
                                    (WINDOW_WIDTH, WINDOW_HEIGHT))
 
@@ -107,9 +115,11 @@ class Picture(pygame.sprite.Sprite):
 
 
 class Labyrinth:
+    '''Класс, создающий игровое
+    поле.'''
     def __init__(self, filename, free_tiles, finish_tile) -> None:
         self.map = []
-        with open(f"{MAPS_DIR}/{filename}") as input_file:
+        with open(os.path.join('maps', filename)) as input_file:
             for line in input_file:
                 self.map.append(list(map(int, line.split())))
         self.height = len(self.map)
@@ -164,6 +174,7 @@ class Labyrinth:
 
 
 class Hero:
+    '''Класс, создающий мышонка.'''
     def __init__(self, pic, position) -> None:
         self.x, self.y = position
         self.image = pygame.transform.scale(load_image(pic, -1),
@@ -182,6 +193,7 @@ class Hero:
 
 
 class Enemy:
+    '''Класс, создающий кота.'''
     def __init__(self, pic, position) -> None:
         self.x, self.y = position
         self.delay = 200
@@ -202,6 +214,7 @@ class Enemy:
 
 
 class Game:
+    '''Класс, объединяющий созданные классы.'''
     def __init__(self, labyrinth, hero, enemy) -> None:
         self.labyrinth = labyrinth
         self.hero = hero
@@ -240,6 +253,7 @@ class Game:
         return self.hero.get_position() == self.enemy.get_position()
 
 
+# функция, выводящая сообщение
 def show_message(screen, message):
     font = pygame.font.Font(None, 50)
     text = font.render(message, 1, (50, 70, 0))
@@ -253,6 +267,7 @@ def show_message(screen, message):
     screen.blit(text, (text_x, text_y))
 
 
+# словарь с параметрами уровней игры
 stages = [
     ["simple_map1.txt", "hero.png", (7, 7), "enemy.png", (1, 7)],
     ["simple_map.txt", "hero.png", (7, 7), "enemy.png", (1, 7)],
@@ -260,6 +275,7 @@ stages = [
 ]
 
 
+# основная функция программы
 def main():
     start_screen()
     for i, stage in enumerate(stages):
